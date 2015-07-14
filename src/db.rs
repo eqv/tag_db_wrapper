@@ -70,7 +70,6 @@ pub extern fn delete_query<'a>(db: *mut DBState<'a>, iter: *mut QueryState<'a>) 
 #[no_mangle]
 pub extern fn insert_db(db: *mut DBState, table: *const libc::c_char, from: u64, to: u64, data_len: u64, val: *mut u8 ) {
     let tbl = ffi_string_to_ref_str(table);
-    //let data: Vec<u8>= unsafe{ Vec::from_raw_buf(val,data_len as usize) };
     let data: Vec<u8>= unsafe{ slice::from_raw_parts(val,data_len as usize).to_vec() };
     assert!( unsafe{(*db).querys.is_empty()} );
     unsafe{ (*db).db.insert(tbl.to_string(), Range::new(from, to), data); }

@@ -24,6 +24,18 @@ module TagDBWrapper
     DBWrapper.new(self.new_db_intern)
   end
 
+  attach_function :new_from_file_intern, :new_from_file, [:string], :pointer
+  def self.new_from_file(file)
+    DBWrapper.new( self.new_from_file_intern(file) )
+  end
+
+  attach_function :save_to_file_intern, :save_to_file, [:pointer,:string], :void
+  def self.save_to_file(db, file)
+    raise unless db.is_a? DBWrapper
+    raise unless file.is_a? String
+    self.save_to_file_intern(db.get_pointer,file)
+  end
+
   attach_function :delete_db_intern, :delete_db, [:pointer], :void
   def self.delete_db(ptr)
     raise unless ptr.is_a? DBWrapper
@@ -113,6 +125,7 @@ class QueryWrapper < PtrWrapper
 
     def delete!
       TagDBWrapper.delete_query(self)
+      @ptr = nil
     end
 
     def each_pair
@@ -145,12 +158,21 @@ class QueryWrapper < PtrWrapper
   end
 
 class TagDB
-  def initialize
-    @wrapped = TagDBWrapper.new_db
+  def initialize(wrapped = TagDBWrapper.new_db)
+    @wrapped = wrapped
+  end
+
+  def self.load_from_file(file)
+    TagDB.new(TagDBWrapper.new_from_file(file))
+  end
+
+  def save_to_file(file)
+    TagDBWrapper.save_to_file(@wrapped,file)
   end
 
   def delete!
     TagDBWrapper.delete_db(@wrapped)
+    @wrapped = nil
   end
 
   def insert(name,range,val)

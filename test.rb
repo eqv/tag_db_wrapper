@@ -27,9 +27,20 @@ db = TagDB.new
   max = min + rand(100_000)
   db.insert("tbl",min..max,"test4..8")
 end
-#db.insert("tbl",5..7,"test5..7")
-#db.insert("tbl",6..6,"test6..6")
-#
+db.delete!
+
+db = TagDB.new
+db.insert("test",10..15,"fnord1")
+db.insert("test",11..15,"fnord2")
+db.insert("test",12..15,"fnord3")
+query_res = db.query("test",0..100) { |f| f.each_pair.to_a }
+raise unless query_res.length == 3
+db.save_to_file("/tmp/test_dump.mp")
+db2 = TagDB.load_from_file("/tmp/test_dump.mp")
+query2_res = db2.query("test",0..100) { |f| f.each_pair.to_a }
+
+raise unless query_res == query2_res
+
 #puts db.query("tbl",0..100) { |f| f.each_pair.to_a }.inspect
 #puts db.query("tbl",0..100) { |f| f.each_key.to_a }.inspect
 #puts db.query("tbl",0..100) { |f| f.each_value.to_a }.inspect

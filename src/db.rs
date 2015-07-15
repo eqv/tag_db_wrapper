@@ -22,8 +22,8 @@ pub struct QueryState<'a>{
 }
 
 impl<'a> DBState<'a>{
-    pub fn new() -> DBState<'a>{
-        DBState{db: DB::new(), querys: HashSet::new()}
+    pub fn new(db: DB) -> DBState<'a>{
+        DBState{db: db, querys: HashSet::new()}
     }
 }
 
@@ -39,7 +39,20 @@ impl<'a> QueryState<'a>{
 
 #[no_mangle]
 pub extern fn new_db<'a>() -> *mut DBState<'a> {
-    unsafe { transmute(Box::new(DBState::new())) }
+    unsafe { transmute(Box::new(DBState::new(DB::new()))) }
+}
+
+#[no_mangle]
+pub extern fn new_from_file<'a>(filename: *const libc::c_char) -> *mut DBState<'a>{
+    let file = ffi_string_to_ref_str(filename).to_string();
+    let db = DB::new_from_file(&file).unwrap();
+    unsafe { transmute(Box::new(DBState::new(db))) }
+}
+
+#[no_mangle]
+pub extern fn save_to_file <'a>(db: *mut DBState<'a>, filename: *const libc::c_char) {
+    let file = ffi_string_to_ref_str(filename).to_string();
+    unsafe{ (*db).db.save_to_file(&file).unwrap(); }
 }
 
 #[no_mangle]

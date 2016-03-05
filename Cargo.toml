@@ -22,10 +22,10 @@ license = "GPL-2.0"
 #time = "*"
 
 [dependencies.tag_db]
-git = "file:/home/me/proggen/rust/tag_db"
+git = "https://github.com/eqv/tag_db"
 
 [dependencies.interval_tree]
-git = "file:/home/me/proggen/rust/interval_tree"
+git = "https://github.com/eqv/interval_tree"
 
 [lib]
 name = "tag_db_wrapper"

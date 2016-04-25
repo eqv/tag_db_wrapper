@@ -52,7 +52,9 @@ module TagDBWrapper
   attach_function :insert_db_intern, :insert_db, [:pointer, :string, :uint64, :uint64, :uint64, :pointer], :void
   def self.insert_db(db, name, range, data)
     raise unless db.is_a? DBWrapper
-    raise unless
+    raise unless name.is_a? String
+    raise unless range.is_a? Range
+    raise unless data.is_a? String
     memBuf = FFI::MemoryPointer.new(:char, data.size) # Create a memory pointer sized to the data
     memBuf.put_bytes(0, data)                         # Insert the actual data 
     min,max = self.range_to_min_max(range)
@@ -158,6 +160,8 @@ class QueryWrapper < PtrWrapper
   end
 
 class TagDB
+
+  FullRange = 0..(2**64-1)
   def initialize(wrapped = TagDBWrapper.new_db)
     @wrapped = wrapped
   end
